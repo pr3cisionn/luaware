@@ -260,13 +260,26 @@ mt.__namecall = newClose(function(...)
    local args = {...}
 
    if method == "FindPartOnRayWithIgnoreList" and silentSettings.Enabled then
-   if silentSettings.Enabled2 then
-        args[2] = Ray.new(camera.CFrame.Position, (silentSettings.silentTarget[silentSettings.AimPart].CFrame.p - camera.CFrame.Position).unit * 500)
-        end
+	    if silentSettings.Enabled2 then
+			args[2] = Ray.new(camera.CFrame.Position, (silentSettings.silentTarget[silentSettings.AimPart].CFrame.p - camera.CFrame.Position).unit * 500)
+		end
    end
 
    return oldNamecall(unpack(args))
 end)
+
+local mt = getrawmetatable(game)
+make_writeable(mt)
+local old = mt.__index
+
+mt.__index = function(a,b)
+    if tostring(a) == "Humanoid" and tostring(b) == "WalkSpeed" then
+        if bhopSettings.Enabled and bhopSettings.Jumping then
+            return bhopSettings.Speed
+        end
+    end
+    return old(a,b)
+end
 
 --\\
 
@@ -278,7 +291,7 @@ mainLoop = runService.RenderStepped:Connect(function()
 
 	updateFOVCircle()
 
-	
+	getgenv().bhopSettings = bhopSettings
 
 	if getClosestPlayer() ~= nil and getClosestPlayer().Character ~= nil then
 		local position, onscreen = camera:WorldToScreenPoint(getClosestPlayer().Character[aimSettings.AimPart].Position)
@@ -1075,7 +1088,7 @@ end
 
 })
 
---[[local MovementSection = OtherTab:AddSection({
+local MovementSection = OtherTab:AddSection({
 	Name = "Movement"
 })
 
@@ -1098,7 +1111,7 @@ OtherTab:AddSlider({
 	Callback = function(Value)
 		bhopSettings.Speed = Value
 	end    
-})]]
+})
 
 --\\
 
