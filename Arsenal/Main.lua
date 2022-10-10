@@ -613,7 +613,7 @@ LegitTab:AddDropdown({
 	end    
 })
 
-local TriggerSection = LegitTab:AddSection({
+--[[local TriggerSection = LegitTab:AddSection({
 	Name = "Triggerbot"
 })
 
@@ -636,7 +636,7 @@ LegitTab:AddSlider({
 	Callback = function(Value)
 		silentSettings.Delay = Value
 	end    
-})
+})]]
 
 local FOVSection = LegitTab:AddSection({
 	Name = "FOV"
