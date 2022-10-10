@@ -481,7 +481,7 @@ end
 
 for index,player in next, playerService:GetPlayers() do 
 	if player ~= localPlayer then
-		p_added(player)
+		player_added(player)
 	end
 end
 
