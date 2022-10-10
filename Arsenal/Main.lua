@@ -53,6 +53,7 @@ local silentSettings = {
 
 local triggerBotSettings = {
 	Enabled = false,
+	teamCheck = false,
 	Delay = 0,
 }
 
@@ -72,7 +73,7 @@ local espSettings = {
 		Size = 14,
 		Outline = true,
 		UseTC = false,
-		ShowDist = true,
+		ShowDist = false,
 		Colour = Color3.new(1,1,1),
 		Font = 3,
 		AutoScale = false
@@ -294,12 +295,14 @@ mainLoop = runService.RenderStepped:Connect(function()
 
 
 	if mouse.Target and triggerBotSettings.Enabled then
-		if mouse.Target.Parent:FindFirstChild("Humanoid") then
-			if triggerBotSettings.Delay == 0 then 
-			mouse1click()
-			else
-			task.wait(triggerBotSettings.Delay / 1000)
-			mouse1click()
+		if mouse.Target.Parent:FindFirstChild("Humanoid") and playerService:FindFirstChild(mouse.Target.Parent.Name) then
+			local player = playerService:FindFirstChild(mouse.Target.Parent.Name)
+
+			if player.Team ~= localPlayer.Team then
+				task.wait(triggerBotSettings.Delay / 1000)
+				mouse1press()
+				task.wait()
+				mouse1release()
 			end
 		end
 	end
@@ -312,16 +315,16 @@ end)
 
 local function esp(player,character)
 
-	local humanoid = cr:WaitForChild("Humanoid")
-	local humanoidRootPart = cr:WaitForChild("HumanoidRootPart")
+	local humanoid = character:WaitForChild("Humanoid")
+	local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
 
 	local highlightFolder = game.CoreGui:FindFirstChild("ESP") or Instance.new("Folder", game.CoreGui)
 	highlightFolder.Name = "ESP"
 
-	if highlightFolder:FindFirstChild(p.Name) then highlightFolder[p.Name]:Destroy() end
+	if highlightFolder:FindFirstChild(player.Name) then highlightFolder[player.Name]:Destroy() end
 
 	local highlight = Instance.new("Highlight", highlightFolder)
-	highlight.Name = p.Name
+	highlight.Name = player.Name
 	highlight.FillColor = espSettings.Highlight.FillColour
 	highlight.FillTransparency = espSettings.Highlight.FillTransparency
 	highlight.OutlineColor = espSettings.Highlight.OutlineColour
@@ -394,7 +397,7 @@ local function esp(player,character)
 		local root_pos,onscreen = camera:WorldToViewportPoint(humanoidRootPart.Position)
 		if onscreen and player ~= localPlayer then
 
-			local mag = math.round((root_pos.Position - localCharacter.HumanoidRootPart.Position).Magnitude)
+			local mag = math.round((humanoidRootPart.Position - localCharacter.HumanoidRootPart.Position).Magnitude)
 
 			highlight.Adornee = character
 			highlight.Enabled = espSettings.Highlight.Enabled
@@ -414,7 +417,7 @@ local function esp(player,character)
 			text.Visible = espSettings.Name.Enabled
 			text.Outline = espSettings.Name.Outline
 			text.Font = espSettings.Name.Font
-			text.Text = tostring(p.Name)
+			text.Text = tostring(player.Name)
 
 			text2.Position = Vector2.new(root_pos.X, root_pos.Y + 36)
 
@@ -625,9 +628,17 @@ LegitTab:AddToggle({
 	end    
 })
 
+LegitTab:AddToggle({
+	Name = "Teamcheck",
+	Default = triggerBotSettings.Enabled,
+	Callback = function(Value)
+		triggerBotSettings.Enabled = Value
+	end    
+})
+
 LegitTab:AddSlider({
 	Name = "Delay (ms)",
-	Min = 0,
+	Min = 1,
 	Max = 1000,
 	Default = silentSettings.Delay,
 	Color = Color3.fromRGB(255,255,255),
