@@ -312,16 +312,16 @@ end)
 
 local function esp(player,character)
 
-	local humanoid = cr:WaitForChild("Humanoid")
-	local humanoidRootPart = cr:WaitForChild("HumanoidRootPart")
+	local humanoid = character:WaitForChild("Humanoid")
+	local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
 
 	local highlightFolder = game.CoreGui:FindFirstChild("ESP") or Instance.new("Folder", game.CoreGui)
 	highlightFolder.Name = "ESP"
 
-	if highlightFolder:FindFirstChild(p.Name) then highlightFolder[p.Name]:Destroy() end
+	if highlightFolder:FindFirstChild(player.Name) then highlightFolder[player.Name]:Destroy() end
 
 	local highlight = Instance.new("Highlight", highlightFolder)
-	highlight.Name = p.Name
+	highlight.Name = player.Name
 	highlight.FillColor = espSettings.Highlight.FillColour
 	highlight.FillTransparency = espSettings.Highlight.FillTransparency
 	highlight.OutlineColor = espSettings.Highlight.OutlineColour
@@ -394,7 +394,7 @@ local function esp(player,character)
 		local root_pos,onscreen = camera:WorldToViewportPoint(humanoidRootPart.Position)
 		if onscreen and player ~= localPlayer then
 
-			local mag = math.round((root_pos.Position - localCharacter.HumanoidRootPart.Position).Magnitude)
+			local mag = (humanoidRootPart.Position - localCharacter.HumanoidRootPart.Position).Magnitude
 
 			highlight.Adornee = character
 			highlight.Enabled = espSettings.Highlight.Enabled
@@ -414,7 +414,7 @@ local function esp(player,character)
 			text.Visible = espSettings.Name.Enabled
 			text.Outline = espSettings.Name.Outline
 			text.Font = espSettings.Name.Font
-			text.Text = tostring(p.Name)
+			text.Text = tostring(player.Name)
 
 			text2.Position = Vector2.new(root_pos.X, root_pos.Y + 36)
 
@@ -433,7 +433,7 @@ local function esp(player,character)
 			end
 			text2.Outline = espSettings.Name.Outline
 			text2.Font = espSettings.Name.Font
-			text2.Text = (mag.."s")
+			text2.Text = (math.round(mag).."s")
 
 			if player.Team == localPlayer.Team and espSettings.TeamCheck then
 				line.Visible = false
@@ -494,7 +494,7 @@ playerService.PlayerAdded:Connect(player_added)
 --// UI Library
 
 local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
-local Window = OrionLib:MakeWindow({Name = "luaware (Private Release)", HidePremium = true, SaveConfig = false, ConfigFolder = "luaware", IntroEnabled = true, IntroText = "luaware", IntroIcon = "rbxassetid://11212490886"})
+local Window = OrionLib:MakeWindow({Name = "luaware (Early Release)", HidePremium = true, SaveConfig = false, ConfigFolder = "luaware", IntroEnabled = true, IntroText = "luaware", IntroIcon = "rbxassetid://11212490886"})
 
 local LegitTab = Window:MakeTab({
 	Name = "Legit",
