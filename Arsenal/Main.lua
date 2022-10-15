@@ -620,12 +620,29 @@ LegitTab:AddToggle({
 	end    
 })
 
-LegitTab:AddDropdown({
-	Name = "AimPart",
-	Default = silentSettings.AimPart,
-	Options = {"Head", "HumanoidRootPart"},
+LegitTab:AddSlider({
+	Name = "Head Chance",
+	Min = 1,
+	Max = 100,
+	Default = silentSettings.HeadChance,
+	Color = Color3.fromRGB(255,255,255),
+	Increment = 1,
+	ValueName = "",
 	Callback = function(Value)
-		silentSettings.AimPart = Value
+		silentSettings.HeadChance = Value
+	end    
+})
+
+LegitTab:AddSlider({
+	Name = "Body Chance",
+	Min = 1,
+	Max = 100,
+	Default = silentSettings.BodyChance,
+	Color = Color3.fromRGB(255,255,255),
+	Increment = 1,
+	ValueName = "",
+	Callback = function(Value)
+		silentSettings.BodyChance = Value
 	end    
 })
 
@@ -1110,6 +1127,27 @@ OtherTab:AddSlider({
 	ValueName = "",
 	Callback = function(Value)
 		bhopSettings.Speed = Value
+	end    
+})
+
+OtherTab:AddToggle({
+	Name = "Enable Walkspeed",
+	Default = humanoidMods.EnableWalk,
+	Callback = function(Value)
+		humanoidMods.EnableWalk = Value
+	end    
+})
+
+OtherTab:AddSlider({
+	Name = "Walkspeed",
+	Min = 0,
+	Max = 1000,
+	Default = humanoidMods.WalkSpeed,
+	Color = Color3.fromRGB(255,255,255),
+	Increment = 1,
+	ValueName = "",
+	Callback = function(Value)
+		humanoidMods.WalkSpeed = Value
 	end    
 })
 
