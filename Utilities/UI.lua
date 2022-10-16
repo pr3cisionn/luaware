@@ -1,6 +1,6 @@
-OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
+local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
 
-function Notify(text)
+local function Notify(text)
 OrionLib:MakeNotification({
 	Name = "luaware",
 	Content = text,
