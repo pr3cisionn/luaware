@@ -512,7 +512,7 @@ playerService.PlayerAdded:Connect(player_added)
 
 --// UI Library
 
-local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
+--local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
 local Window = OrionLib:MakeWindow({Name = "luaware (Private Release)", HidePremium = true, SaveConfig = false, ConfigFolder = "luaware", IntroEnabled = true, IntroText = "luaware", IntroIcon = "rbxassetid://11212490886"})
 
 local LegitTab = Window:MakeTab({
