@@ -1,5 +1,7 @@
 -- Luaware / Arsenal
 
+local UI = loadstring(game:HttpGet(('https://raw.githubusercontent.com/pr3cisionn/luaware/main/Utilities/UI.lua')))()
+
 --// Variables
 
 local playerService = game:GetService("Players")
@@ -512,7 +514,7 @@ playerService.PlayerAdded:Connect(player_added)
 
 --// UI Library
 
---local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
+local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
 local Window = OrionLib:MakeWindow({Name = "luaware (Private Release)", HidePremium = true, SaveConfig = false, ConfigFolder = "luaware", IntroEnabled = true, IntroText = "luaware", IntroIcon = "rbxassetid://11212490886"})
 
 local LegitTab = Window:MakeTab({
@@ -1012,12 +1014,7 @@ OtherTab:AddDropdown({
 		local melee = Instance.new("StringValue", localPlayer.Data.Shuffles.Melees)
 		melee.Name = Value
 
-		OrionLib:MakeNotification({
-			Name = "luaware",
-			Content = "Changed Melee to "..Value,
-			Image = "rbxassetid://11212490886",
-			Time = 5
-		})
+		Notify("Changed Melee to "..Value..".")
 	end    
 })
 
@@ -1064,12 +1061,7 @@ OtherTab:AddButton({
 
 	if new == nil or old == nil then 
 
-OrionLib:MakeNotification({
-	Name = "luaware",
-	Content = "Pick a skin to swap/replace.",
-	Image = "rbxassetid://11212490886",
-	Time = 5
-})
+Notify("Select a skin to swap/replace.")
 return
 	end
 
@@ -1097,12 +1089,7 @@ c2.Parent = skinFolder
 
 task.wait(0.01)
 
-OrionLib:MakeNotification({
-	Name = "luaware",
-	Content = "Swapped "..old.." with "..new,
-	Image = "rbxassetid://11212490886",
-	Time = 5
-})
+Notify("Swapped "..old.." with "..new..".")
 
 end    
 
@@ -1156,12 +1143,7 @@ OtherTab:AddSlider({
 
 --\\
 
-OrionLib:MakeNotification({
-	Name = "luaware",
-	Content = "Welcome, "..tostring(localPlayer.DisplayName),
-	Image = "rbxassetid://11212490886",
-	Time = 5
-})
+Notify("Welcome, "..lp.DisplayName..".")
 
 OrionLib:Init()
 
