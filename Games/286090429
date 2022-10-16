@@ -1,4 +1,4 @@
--- Luaware 
+-- Luaware / Arsenal
 
 --// Variables
 
@@ -104,6 +104,11 @@ local bhopSettings = {
     Enabled = false,
 	Jumping = false,
 	Speed = 75
+}
+
+local humanoidMods = {
+    EnableWalk = false,
+    WalkSpeed = 16
 }
 
 local fovCircle = Drawing.new("Circle")
@@ -290,8 +295,6 @@ local mainLoop
 mainLoop = runService.RenderStepped:Connect(function()
 
 	updateFOVCircle()
-
-	getgenv().bhopSettings = bhopSettings
 
 	if getClosestPlayer() ~= nil and getClosestPlayer().Character ~= nil then
 		local position, onscreen = camera:WorldToScreenPoint(getClosestPlayer().Character[aimSettings.AimPart].Position)
