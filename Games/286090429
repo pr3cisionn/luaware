@@ -48,7 +48,9 @@ local silentSettings = {
 	Enabled = false,
     Enabled2 = true,
 	AimPart = "Head",
-	silentTarget = nil
+	silentTarget = nil,
+	HeadChance = 50,
+	BodyChance = 50,
 }
 
 local triggerBotSettings = {
@@ -327,6 +329,16 @@ mainLoop = runService.RenderStepped:Connect(function()
 		localCharacter.Humanoid.Jump = true
 		localCharacter.Humanoid.WalkSpeed = bhopSettings.Speed
 	end
+
+	local chance = math.random(0,100)
+
+	if silentSettings.HeadChance or 0 <= chance then
+	silentSettings.AimPart = "HumanoidRootPart"
+	elseif silentSettings.BodyChance or 0 >= chance then
+	silentSettings.AimPart = "Head"
+	else
+	silentSettings.AimPart = "HumanoidRootPart"
+	end
 end)
 
 local function esp(player,character)
@@ -513,7 +525,6 @@ playerService.PlayerAdded:Connect(player_added)
 --// UI Library
 
 local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
-local Window = OrionLib:MakeWindow({Name = "luaware (Private Release)", HidePremium = true, SaveConfig = false, ConfigFolder = "luaware", IntroEnabled = true, IntroText = "luaware", IntroIcon = "rbxassetid://11212490886"})
 
 local function Notify(text)
 OrionLib:MakeNotification({
@@ -523,6 +534,13 @@ OrionLib:MakeNotification({
 	Time = 5
 })
 end
+
+if game.PlaceId ~= 286090429 then Notify("Invalid game") return end
+
+local Window = OrionLib:MakeWindow({Name = "luaware (Private Release)", HidePremium = true, SaveConfig = false, ConfigFolder = "luaware", IntroEnabled = true, IntroText = "luaware", IntroIcon = "rbxassetid://11212490886"})
+
+task.wait()
+
 
 local LegitTab = Window:MakeTab({
 	Name = "Legit",
@@ -634,7 +652,7 @@ LegitTab:AddToggle({
 
 LegitTab:AddSlider({
 	Name = "Head Chance",
-	Min = 1,
+	Min = 0,
 	Max = 100,
 	Default = silentSettings.HeadChance,
 	Color = Color3.fromRGB(255,255,255),
@@ -647,7 +665,7 @@ LegitTab:AddSlider({
 
 LegitTab:AddSlider({
 	Name = "Body Chance",
-	Min = 1,
+	Min = 0,
 	Max = 100,
 	Default = silentSettings.BodyChance,
 	Color = Color3.fromRGB(255,255,255),
@@ -1150,7 +1168,7 @@ OtherTab:AddSlider({
 
 --\\
 
-Notify("Welcome, "..lp.DisplayName..".")
+Notify("Welcome, "..localPlayer.DisplayName..".")
 
 OrionLib:Init()
 
