@@ -7,6 +7,7 @@ local runService = game:GetService("RunService")
 local userInputService = game:GetService("UserInputService")
 local replicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = workspace or game:GetService("Workspace")
+local coreGui = game.CoreGui or game:GetService("CoreGui")
 
 local localPlayer = playerService.LocalPlayer
 local localCharacter = localPlayer.Character or localPlayer.CharacterAdded:Wait()
@@ -158,13 +159,17 @@ local function teamCheck(player)
 
 end
 
-function IsVisible(part, ignore)
+function IsVisible(character, ignore)
 	if not aimSettings.WallCheck then return true end
 
 	Origin = workspace.CurrentCamera.CFrame.p
-	CheckRay = Ray.new(Origin, part.Position - Origin)
+	CheckRay = Ray.new(Origin, character.Head.Position - Origin)
 	Hit = workspace:FindPartOnRayWithIgnoreList(CheckRay, ignore)
-	return Hit == nil
+	if Hit.Parent == character then
+	return true
+	else
+	return false
+	end
 end
 
 local function getClosestPlayer()
@@ -178,7 +183,7 @@ local function getClosestPlayer()
 				local playerPosition, playerOnScreen = camera:WorldToViewportPoint(character.HumanoidRootPart.Position)
 				local magnitude = (Vector2.new(playerPosition.X, playerPosition.Y) - Vector2.new(mouse.X, mouse.Y)).Magnitude
 
-				if (magnitude < dist and magnitude < circleSettings.Radius and IsVisible(character[aimSettings.AimPart], {camera, localCharacter, Workspace.Debris, Workspace.Ray_Ignore, character, Workspace.Map.Ignore})) then
+				if (magnitude < dist and magnitude < circleSettings.Radius) then
 					dist = magnitude
 					closestPlayer = player
 				end
@@ -203,48 +208,72 @@ local function updateFOVCircle()
 end
 
 
-local function gunMod(num)
+local function gunMod(num, value)
 
 
 	local weaponsFolder = replicatedStorage.Weapons
 
 	for i,v in pairs(weaponsFolder:GetChildren()) do 
 
+		local backupFolder = coreGui:FindFirstChild("Backup") or Instance.new("Folder", coreGui)
+		local backupWeapon = backupFolder:FindFirstChild(v.Name) or v:Clone()
+		backupFolder.Name = "Backup"
+		backupWeapon.Parent = backupFolder
+
 		if num == 1 and v:FindFirstChild("Auto") then
 
-			v.Auto.Value = true
-
+			if value then
+				v.Auto.Value = true
+			else
+				v.Auto.Value = backupWeapon.Auto.Value
+			end
 		end
 
 		if num == 2 and v:FindFirstChild("Spread") and v:FindFirstChild("MaxSpread") then
 
-			v.Spread.Value = 0
-			v.MaxSpread.Value = 0
-
+			if value then
+				v.Spread.Value = 0
+				v.MaxSpread.Value = 0
+			else
+				v.Spread.Value = backupWeapon.Spread.Value
+				v.MaxSpread.Value = backupWeapon.MaxSpread.Value
+			end
 		end
 
 		if num == 3 and v:FindFirstChild("RecoilControl") then
 
-			v.RecoilControl.Value = 0
-
+			if value then
+				v.RecoilControl.Value = 0
+			else
+				v.RecoilControl.Value = backupWeapon.RecoilControl.Value
+			end
 		end
 
 		if num == 4 and v:FindFirstChild("EquipTime") then
 
-			v.EquipTime.Value = 0
-
+			if value then
+				v.EquipTime.Value = 0
+			else
+				v.EquipTime.Value = backupWeapon.EquipTime.Value
+			end
 		end
 
 		if num == 5 and v:FindFirstChild("ReloadTime") then
 
-			v.ReloadTime.Value = 0
-
+			if value then
+				v.ReloadTime.Value = 0
+			else
+				v.ReloadTime.Value = backupWeapon.ReloadTime.Value
+			end
 		end
 
 		if num == 6 and v:FindFirstChild("FireRate") then
 
-			v.FireRate.Value = 0.05
-
+			if value then
+				v.FireRate.Value = 0.05
+			else
+				v.FireRate.Value = backupWeapon.FireRate.Value
+			end
 		end
 
 	end
@@ -298,13 +327,14 @@ mainLoop = runService.RenderStepped:Connect(function()
 
 	updateFOVCircle()
 
-	if getClosestPlayer() ~= nil and getClosestPlayer().Character ~= nil then
+	if getClosestPlayer() ~= nil then
+    local character = getClosestPlayer().Character or getClosestPlayer().CharacterAdded:Wait()
 		local position, onscreen = camera:WorldToScreenPoint(getClosestPlayer().Character[aimSettings.AimPart].Position)
         if onscreen then
 		silentSettings.silentTarget = getClosestPlayer().Character
         silentSettings.Enabled2 = true
         end
-		if aimSettings.Aimbot and aimSettings.isAiming then
+		if aimSettings.Aimbot and aimSettings.isAiming and IsVisible(getClosestPlayer().Character, {camera, localCharacter, Workspace.Debris, Workspace.Ray_Ignore, getClosestPlayer(), Workspace.Map.Ignore}) then
 			aimAt(position)
 		end
 	else
@@ -525,21 +555,16 @@ playerService.PlayerAdded:Connect(player_added)
 --// UI Library
 
 local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
+local Window = OrionLib:MakeWindow({Name = "luaware", HidePremium = true, SaveConfig = false, ConfigFolder = "luaware", IntroEnabled = true, IntroText = "luaware", IntroIcon = "rbxassetid://11212490886"})
 
 local function Notify(text)
-OrionLib:MakeNotification({
-	Name = "luaware",
-	Content = text,
-	Image = "rbxassetid://11212490886",
-	Time = 5
-})
+	OrionLib:MakeNotification({
+		Name = "luaware",
+		Content = text,
+		Image = "rbxassetid://11212490886",
+		Time = 5
+	})
 end
-
-if game.PlaceId ~= 286090429 then Notify("Invalid game") return end
-
-local Window = OrionLib:MakeWindow({Name = "luaware (Private Release)", HidePremium = true, SaveConfig = false, ConfigFolder = "luaware", IntroEnabled = true, IntroText = "luaware", IntroIcon = "rbxassetid://11212490886"})
-
-task.wait()
 
 
 local LegitTab = Window:MakeTab({
@@ -970,47 +995,53 @@ local ModSection = ModTab:AddSection({
 	Name = "Gun Mods"
 })
 
-ModTab:AddLabel("If not working respawn")
+ModTab:AddLabel("Equip weapon again if not working")
 
-ModTab:AddButton({
+ModTab:AddToggle({
 	Name = "No Recoil",
+	Default = false,
 	Callback = function(Value)
-		gunMod(3)
+		gunMod(3, Value)
 	end    
 })
 
-ModTab:AddButton({
+ModTab:AddToggle({
 	Name = "No Spread",
+	Default = false,
 	Callback = function(Value)
-		gunMod(2)
+		gunMod(2, Value)
 	end    
 })
 
-ModTab:AddButton({
+ModTab:AddToggle({
 	Name = "Automatic",
+	Default = false,
 	Callback = function(Value)
-		gunMod(1)
+		gunMod(1, Value)
 	end    
 })
 
-ModTab:AddButton({
+ModTab:AddToggle({
 	Name = "Fast Reload",
+	Default = false,
 	Callback = function(Value)
-		gunMod(5)
+		gunMod(5, Value)
 	end    
 })
 
-ModTab:AddButton({
+ModTab:AddToggle({
 	Name = "Fast Equip",
+	Default = false,
 	Callback = function(Value)
-		gunMod(4)
+		gunMod(4, Value)
 	end    
 })
 
-ModTab:AddButton({
+ModTab:AddToggle({
 	Name = "Firerate",
+	Default = false,
 	Callback = function(Value)
-		gunMod(6)
+		gunMod(6, Value)
 	end    
 })
 
