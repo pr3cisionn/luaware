@@ -117,7 +117,7 @@ local function getClosestPlayer()
 
             local mag = (Vector2.new(mouse.X, mouse.Y) - Vector2.new(pos.X, pos.Y)).Magnitude
 
-            if mag < maxdist and mag < aimsettings.fov and (distance < 1000 or distance > -1000) and wallCheck(v, {workspace.Players[tostring(player.TeamColor.Name)], camera, v}) then
+            if mag < maxdist and mag < aimsettings.fov and (distance < 1000 or distance > -1000) and wallCheck(v, {workspace.Players[tostring(player.TeamColor.Name)], camera}) then
                 maxdist = mag
                 target = v
             end
