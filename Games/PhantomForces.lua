@@ -217,7 +217,7 @@ local AimBox = AimTab:AddLeftTabbox("Aimbot") do
 
     Other:AddToggle("AimbotShowFOV", {Text = "Enabled", Default = aimsettings.showfov})
 
-    Other:AddSlider("AimbotFOVRadius", {Text = "FOV", Default = aimsettings.fov, Min = 1, Max = 1000, Rounding = 0, Compact = false,})
+    Other:AddSlider("AimbotFOVRadius", {Text = "FOV", Default = aimsettings.fov, Min = 50, Max = 1000, Rounding = 0, Compact = false,})
 
     Other:AddLabel("FOV Colour"):AddColorPicker("AimbotFOVColour", {Default = Color3.new(1, 1, 1), Title = "FOV Colour", })
 
