@@ -103,7 +103,8 @@ function IsVisible(character, ignore)
 	origin = workspace.CurrentCamera.CFrame.p
 	checkRay = Ray.new(origin, character.Head.Position - origin)
 	hit = workspace:FindPartOnRayWithIgnoreList(checkRay, ignore)
-	return hit == nil
+	
+	if hit and hit.Parent == character then return true else return false end
 end
 
 local function getClosestPlayer()
