@@ -100,14 +100,10 @@ end
 function IsVisible(character, ignore)
 	if not aimSettings.WallCheck then return true end
 
-	Origin = workspace.CurrentCamera.CFrame.p
-	CheckRay = Ray.new(Origin, character.Head.Position - Origin)
-	Hit = workspace:FindPartOnRayWithIgnoreList(CheckRay, ignore)
-	if Hit and Hit.Parent == character then
-	return true
-	else
-	return false
-	end
+	origin = workspace.CurrentCamera.CFrame.p
+	checkRay = Ray.new(origin, character.Head.Position - origin)
+	hit = workspace:FindPartOnRayWithIgnoreList(checkRay, ignore)
+	return hit == nil
 end
 
 local function getClosestPlayer()
@@ -121,7 +117,7 @@ local function getClosestPlayer()
 
             local mag = (Vector2.new(mouse.X, mouse.Y) - Vector2.new(pos.X, pos.Y)).Magnitude
 
-            if mag < maxdist and mag < aimsettings.fov and (distance < 1000 or distance > -1000) and wallCheck(v, {workspace.Players[tostring(player.TeamColor.Name)], camera}) then
+            if mag < maxdist and mag < aimsettings.fov and (distance < 1000 or distance > -1000) and wallCheck(v, {workspace.Players[tostring(player.TeamColor.Name)], camera, v}) then
                 maxdist = mag
                 target = v
             end
