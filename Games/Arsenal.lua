@@ -536,6 +536,11 @@ local mainupdate = function()
         end
     end
 
+    humanoid.UseJumpPower = true
+    humanoid.JumpPower = settings.Local.JP
+
+    
+
     gunmod(1, settings.Mods.Automatic)
     gunmod(2, settings.Mods.NoSpread)
     gunmod(3, settings.Mods.NoRecoil)
@@ -546,23 +551,7 @@ local mainupdate = function()
     lightingService.Ambient = settings.Visual.Lighting.Ambient
     lightingService.Brightness = settings.Visual.Lighting.Brightness
 
-    if settings.Visual.Lighting.Sky == "Default" then
-
-    elseif settings.Visual.Lighting.Sky == "Galaxy 1" then
-
-    elseif settings.Visual.Lighting.Sky == "Galaxy 2" then
-        
-    elseif settings.Visual.Lighting.Sky == "Cloudy 1" then
-
-    elseif settings.Visual.Lighting.Sky == "Night 1" then
-
-    elseif settings.Visual.Lighting.Sky == "Old 1" then
     
-    elseif settings.Visual.Lighting.Sky == "Old 2" then
-
-    elseif settings.Visual.Lighting.Sky == "Sunset 1" then
-
-    end
 end
 
 local mt = getrawmetatable(game)
@@ -591,15 +580,16 @@ mt.__namecall = newClose(function(...)
 end)
 
 
---[[mt.__index = function(a, b)
-    if tostring(a) == "Humanoid" and tostring(b) == "JumpHeight" then
-        if settings.Local.ToggleJP then
-            return settings.Local.JP
+mt.__index = function(a, b)
+    if tostring(a) == "Humanoid" and tostring(b) == "WalkSpeed" then
+        if settings.Local.ToggleWS then
+            return settings.Local.WS
         end
     end
 
     return oldIndex(a, b)
-end]]
+end
+
 
 local Window = Library:CreateWindow({Title = "luaware | Arsenal", Center = true, AutoShow = true})
 
@@ -716,8 +706,7 @@ local Visual_SkyBox = Tabs.Visual:AddRightTabbox("Lighting") do
 
     Main:AddLabel("Ambience"):AddColorPicker("LightingAmbience", {Default = Color3.new(0,0,0), Title = "Ambience",})
     Main:AddSlider("LightingBrightness", {Text = "Brightness", Default = 0, Min = 0, Max = 2, Rounding = 1, Compact = true})
-    Main:AddDropdown("LightingCustomSky", {Values = settings.Visual.Lighting.CustomSkys, Default = 1, Multi = false, Text = "Custom Sky",})
-    Main:AddLabel("Custom sky disabled.")
+    --Main:AddDropdown("LightingCustomSky", {Values = settings.Visual.Lighting.CustomSkys, Default = 1, Multi = false, Text = "Custom Sky",})
 end
 
 local Local_CharacterBox = Tabs.Local:AddLeftTabbox("Character") do
@@ -729,7 +718,7 @@ local Local_CharacterBox = Tabs.Local:AddLeftTabbox("Character") do
     Main:AddDivider()
 
     Main:AddToggle("ToggleLocalJumppower", {Text = "Enable Jumpheight", Default = false})
-    Main:AddSlider("LocalJumppower", {Text = "Jumpheight", Default = 3.5, Min = 3.5, Max = 100, Rounding = 0, Compact = true})
+    Main:AddSlider("LocalJumppower", {Text = "Jumpheight", Default = 50, Min = 50, Max = 100, Rounding = 0, Compact = true})
 
     Main:AddDivider()
     
