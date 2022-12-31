@@ -141,6 +141,8 @@ local settings = {
         Speed = 90,
     },
     KickWhenMod = false,
+    InfiniteJump = false,
+    Hold = false,
 }
 
 local aimCircle = Drawing.new("Circle")
@@ -152,6 +154,10 @@ silentCircle.Visible = false
 userInputService.InputBegan:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.Keyboard and input.KeyCode == Enum.KeyCode.Space then
         settings.Local.BhopJumping = true
+
+        if settings.InfiniteJump and not settings.Hold then
+            humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+        end
     end
 end)
 
@@ -400,6 +406,9 @@ local mainupdate = function()
 
     settings.KickWhenMod = Toggles.MiscSafetyKick.Value
 
+    settings.InfiniteJump = Toggles.ToggleInfiniteJump.Value
+    settings.Hold = Toggles.ToggleInfiniteJumpHold.Value
+
     settings.FOVEnabled = Toggles.FieldOfViewEnabled.Value
     settings.FOV = Options.FieldOfView.Value 
 
@@ -484,6 +493,10 @@ local mainupdate = function()
 
     lightingService.Ambient = settings.Lighting.Ambient
     lightingService.Brightness = settings.Lighting.Brightness
+
+    if settings.InfiniteJump and settings.Hold and settings.Local.BhopJumping then
+        humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+    end
 end
 
 local mt = getrawmetatable(game)
@@ -617,6 +630,11 @@ local Local_CharacterBox = Tabs.Local:AddLeftTabbox("Character") do
     
     Main:AddToggle("ToggleLocalBhop", {Text = "Enable Bhop", Default = false})
     Main:AddSlider("LocalBhopSpeed", {Text = "Speed", Default = 1, Min = 1, Max = 100, Rounding = 0, Compact = true})
+
+    Main:AddDivider()
+
+    Main:AddToggle("ToggleInfiniteJump", {Text = "Infinite Jump", Default = false})
+    Main:AddToggle("ToggleInfiniteJumpHold", {Text = "Hold Mode", Default = false})
 end
 
 local Local_ModBox = Tabs.Local:AddRightTabbox("Mods") do
