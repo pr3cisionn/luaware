@@ -371,7 +371,8 @@ local mainupdate = function()
     settings.Aimbot.FOV.Radius = Options.AimbotFOVSize.Value 
     settings.Aimbot.FOV.Colour = Options.AimbotFOVColour.Value
 
-    settings.Silent.Enabled = Toggles.ToggleSilent.Value 
+    settings.Silent.Enabled = Toggles.ToggleSilent.Value
+    settings.Silent.Wallbang = Toggles.ToggleSilentWallbang.Value
     settings.Silent.Teamcheck = Toggles.ToggleSilentTeamcheck.Value
     settings.Silent.UseChance = Toggles.ToggleSilentUseChance.Value 
     settings.Silent.Hitpart = Options.SilentHitpart.Value
@@ -495,6 +496,12 @@ local mainupdate = function()
         end
     end
 
+    if settings.Local.ToggleWS then
+        if humanoid.MoveDirection.Magnitude > 0 then
+            localCharacter:TranslateBy(humanoid.MoveDirection * settings.Local.WS / 50)
+        end
+    end
+
     gunmod(1, settings.Mods.Automatic)
     gunmod(2, settings.Mods.NoSpread)
     gunmod(3, settings.Mods.NoRecoil)
@@ -538,16 +545,6 @@ mt.__namecall = newClose(function(...)
 
    return oldNamecall(unpack(args))
 end)
-
-mt.__index = function(a, b)
-    if tostring(a) == "Humanoid" and tostring(b) == "WalkSpeed" then
-        if settings.Local.ToggleWS then
-            return settings.Local.WS
-        end
-    end
-    
-    return oldIndex(a, b)
-end
 
 if setreadonly then
     setreadonly(mt, true)
@@ -644,7 +641,7 @@ local Local_CharacterBox = Tabs.Local:AddLeftTabbox("Character") do
     local Main = Local_CharacterBox:AddTab("Character")
 
     Main:AddToggle("ToggleLocalWalkspeed", {Text = "Enable Walkspeed", Default = false})
-    Main:AddSlider("LocalWalkspeed", {Text = "Speed", Default = 16, Min = 16, Max = 250, Rounding = 0, Compact = true})
+    Main:AddSlider("LocalWalkspeed", {Text = "Speed", Default = 1, Min = 1, Max = 100, Rounding = 0, Compact = true})
 
     Main:AddDivider()
     
@@ -659,7 +656,18 @@ local Local_CharacterBox = Tabs.Local:AddLeftTabbox("Character") do
     Main:AddDivider()
 
     Main:AddButton("Respawn Character", function()
-            game:GetService("ReplicatedStorage").Events.SpawnMe:FireServer()
+        game:GetService("ReplicatedStorage").Events.SpawnMe:FireServer()
+    end)
+
+    Main:AddButton("Invisible", function()
+         local oldpos = humanoidRootPart.CFrame
+         humanoidRootPart.CFrame += Vector3.new(0, 9e9, 0)
+         task.wait(0.1)
+         local c = localCharacter.LowerTorso:Clone()
+         c.Parent = localCharacter
+         localCharacter.LowerTorso:Destroy()
+         humanoidRootPart.CFrame = oldpos
+         Library:Notify("You're now invisible.")
     end)
 end
 
