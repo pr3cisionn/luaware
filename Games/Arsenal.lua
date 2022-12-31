@@ -135,6 +135,7 @@ local settings = {
         FastEquip = false,
         FastReload = false,
         Firerate = false,
+        Ammo = false,
     },
     Spinbot = {
         Enabled = false,
@@ -143,6 +144,7 @@ local settings = {
     KickWhenMod = false,
     InfiniteJump = false,
     Hold = false,
+    InstantRespawn = false,
 }
 
 local aimCircle = Drawing.new("Circle")
@@ -279,11 +281,11 @@ local movemouse = function(vector2)
 end
 
 local gunmod = function(num, value)
-	local weaponsFolder = replicatedStorage.Weapons
+	local weaponsFolder = game:GetService("ReplicatedStorage").Weapons
 
 	for i,v in pairs(weaponsFolder:GetChildren()) do 
 
-		local backupFolder = coreGui:FindFirstChild("Backup") or Instance.new("Folder", coreGui)
+		local backupFolder = game.CoreGui:FindFirstChild("Backup") or Instance.new("Folder", coreGui)
 		local backupWeapon = backupFolder:FindFirstChild(v.Name) or v:Clone()
 		backupFolder.Name = "Backup"
 		backupWeapon.Parent = backupFolder
@@ -344,6 +346,14 @@ local gunmod = function(num, value)
 			end
 		end
 
+        if num == 7 and v:FindFirstChild("Ammo") then
+            if value then
+                v.Ammo.Value = 999
+            else
+                v.Ammo.Value = backupWeapon.Ammo.Value
+            end
+        end
+
 	end
 end
 
@@ -393,6 +403,7 @@ local mainupdate = function()
     settings.Mods.Firerate = Toggles.ModFirerate.Value 
     settings.Mods.FastEquip = Toggles.ModEquip.Value 
     settings.Mods.FastReload = Toggles.ModReload.Value
+    settings.Mods.Ammo = Toggles.ModAmmo.Value
 
     ESP:Toggle(Toggles.ToggleESP.Value)
     ESP.TeamColor = Toggles.ToggleESPTeamcolour.Value
@@ -490,6 +501,7 @@ local mainupdate = function()
     gunmod(4, settings.Mods.FastEquip)
     gunmod(5, settings.Mods.FastReload)
     gunmod(6, settings.Mods.Firerate)
+    gunmod(7, settings.Mods.Ammo)
 
     lightingService.Ambient = settings.Lighting.Ambient
     lightingService.Brightness = settings.Lighting.Brightness
@@ -517,13 +529,15 @@ mt.__namecall = newClose(function(...)
 
    if method == "FindPartOnRayWithIgnoreList" and settings.Silent.Enabled then
 	    if settings.Silent.OnScreen then
-			args[2] = Ray.new(camera.CFrame.Position, (settings.Silent.Target[settings.Silent.ToHit].CFrame.p - camera.CFrame.Position).unit * 500)
+			args[2] = Ray.new(camera.CFrame.Position, (settings.Silent.Target[settings.Silent.ToHit].CFrame.p - camera.CFrame.Position).unit * 1000)
+            if settings.Silent.Wallbang then
+                table.insert(args[2], workspace.Map)
+            end
 		end
    end
 
    return oldNamecall(unpack(args))
 end)
-
 
 mt.__index = function(a, b)
     if tostring(a) == "Humanoid" and tostring(b) == "WalkSpeed" then
@@ -533,6 +547,12 @@ mt.__index = function(a, b)
     end
     
     return oldIndex(a, b)
+end
+
+if setreadonly then
+    setreadonly(mt, true)
+else
+    make_writeable(mt, false)
 end
 
 camera.Changed:Connect(function()
@@ -574,7 +594,7 @@ local Aim_SilentBox = Tabs.Aim:AddRightTabbox("Silent") do
 
     Main:AddToggle("ToggleSilent", {Text = "Enabled", Default = false})
     Main:AddToggle("ToggleSilentTeamcheck", {Text = "Teamcheck", Default = false})
-    --Main:AddToggle("ToggleSilentWallbang", {Text = "Wallbang", Default = false})
+    Main:AddToggle("ToggleSilentWallbang", {Text = "Wallbang (Broken)", Default = false})
     Main:AddToggle("ToggleSilentUseChance", {Text = "Use Chance", Default = false})
     Main:AddDropdown("SilentHitpart", {Values = settings.Hitparts, Default = 1, Multi = false, Text = "Hitpart",})
     Main:AddSlider("SilentHeadChance", {Text = "Head Chance", Default = 50, Min = 0, Max = 100, Rounding = 0, Compact = true})
@@ -635,6 +655,12 @@ local Local_CharacterBox = Tabs.Local:AddLeftTabbox("Character") do
 
     Main:AddToggle("ToggleInfiniteJump", {Text = "Infinite Jump", Default = false})
     Main:AddToggle("ToggleInfiniteJumpHold", {Text = "Hold Mode", Default = false})
+
+    Main:AddDivider()
+
+    Main:AddButton("Respawn Character", function()
+            game:GetService("ReplicatedStorage").Events.SpawnMe:FireServer()
+    end)
 end
 
 local Local_ModBox = Tabs.Local:AddRightTabbox("Mods") do
@@ -646,6 +672,7 @@ local Local_ModBox = Tabs.Local:AddRightTabbox("Mods") do
     Main:AddToggle("ModReload", {Text = "Fast Reload", Default = false})
     Main:AddToggle("ModEquip", {Text = "Fast Equip", Default = false})
     Main:AddToggle("ModFirerate", {Text = "Firerate", Default = false})
+    Main:AddToggle("ModAmmo", {Text = "Infinite Ammo", Default = false})
     
     Main:AddLabel("Respawn/re-equip to apply.", true)
 
@@ -676,7 +703,7 @@ end
 local Misc_SafeBox = Tabs.Misc:AddRightTabbox("Safety") do
     local Main = Misc_SafeBox:AddTab("Safety")
 
-    Main:AddToggle("MiscSafetyKick", {Text = "Kick when moderator joins.", Default = false})
+    Main:AddToggle("MiscSafetyKick", {Text = "Kick when moderator joins", Default = false})
 end
 
 
@@ -692,6 +719,23 @@ ThemeManager:ApplyToTab(Tabs.Menu)
 
 runService.RenderStepped:Connect(function(delta)
     mainupdate()
+end)
+
+local getUserRole = function(i, v)
+    return i:GetRoleInGroup(v)
+end
+
+playerService.PlayerAdded:Connect(function(v)
+        if getUserRole(v, 2613928) == "Game Moderators" or getUserRole(v, 2613928) == "Interns" or
+                getUserRole(v, 2613928) == "Contractors" or
+                getUserRole(v, 2613928) == "Contributors" or
+                getUserRole(v, 2613928) == "Beloved" or
+                getUserRole(v, 2613928) == "Main Developers" or
+                getUserRole(v, 2613928) == "Founder/Main Developer"
+         then
+
+         if settings.KickWhenMod then localPlayer:Kick("Moderator Joined the game") end
+    end
 end)
 
 local args
