@@ -50,12 +50,12 @@ table.sort(skinTable, function(a,b)
     return b > a
 end)
 
-local repo = "https://raw.githubusercontent.com/pr3cisionn/Librarys/main/"
+local repo = 'https://raw.githubusercontent.com/wally-rblx/LinoriaLib/main/'
 local ESP = loadstring(game:HttpGet("https://kiriot22.com/releases/ESP.lua"))()
 
-local Library = loadstring(game:HttpGet(repo .. "Library.lua"))()
-local ThemeManager = loadstring(game:HttpGet(repo .. "ThemeManager.lua"))()
-local SaveManager = loadstring(game:HttpGet(repo .. "SaveManager.lua"))()
+local Library = loadstring(game:HttpGet(repo .. 'Library.lua'))()
+local ThemeManager = loadstring(game:HttpGet(repo .. 'addons/ThemeManager.lua'))()
+local SaveManager = loadstring(game:HttpGet(repo .. 'addons/SaveManager.lua'))()
 
 local settings = {
     Hitparts = {
