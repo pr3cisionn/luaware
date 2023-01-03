@@ -25,6 +25,7 @@ local localPlayer = playerService.LocalPlayer
 local localCharacter = localPlayer.Character or localPlayer.CharacterAdded:Wait()
 local humanoid = localCharacter:WaitForChild("Humanoid")
 local humanoidRootPart = localCharacter:WaitForChild("HumanoidRootPart")
+local upperTorso = localCharacter:WaitForChild("UpperTorso")
 
 local camera = workspace.CurrentCamera
 local mouse = localPlayer:GetMouse()
@@ -50,12 +51,12 @@ table.sort(skinTable, function(a,b)
     return b > a
 end)
 
-local repo = 'https://raw.githubusercontent.com/wally-rblx/LinoriaLib/main/'
+local repo = "https://raw.githubusercontent.com/pr3cisionn/Librarys/main/"
 local ESP = loadstring(game:HttpGet("https://kiriot22.com/releases/ESP.lua"))()
 
-local Library = loadstring(game:HttpGet(repo .. 'Library.lua'))()
-local ThemeManager = loadstring(game:HttpGet(repo .. 'addons/ThemeManager.lua'))()
-local SaveManager = loadstring(game:HttpGet(repo .. 'addons/SaveManager.lua'))()
+local Library = loadstring(game:HttpGet(repo .. "Library.lua"))()
+local ThemeManager = loadstring(game:HttpGet(repo .. "ThemeManager.lua"))()
+local SaveManager = loadstring(game:HttpGet(repo .. "SaveManager.lua"))()
 
 local settings = {
     Hitparts = {
@@ -149,9 +150,11 @@ local settings = {
 
 local aimCircle = Drawing.new("Circle")
 aimCircle.Visible = false
+aimCircle.Thickness = 1
 
 local silentCircle = Drawing.new("Circle")
 silentCircle.Visible = false
+silentCircle.Thickness = 1
 
 userInputService.InputBegan:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.Keyboard and input.KeyCode == Enum.KeyCode.Space then
@@ -203,7 +206,40 @@ local swapMelee = function(melee)
     local swapped = Instance.new("StringValue", localPlayer.Data.Shuffles.Melees)
     swapped.Name = melee
 
-    Library:Notify("Changd Melee to "..melee..".")
+    Library:Notify("Changed Melee to "..melee..".")
+end
+
+local db = false
+
+local killAll = function()
+    if db then Library:Notify("Kill all in use.") return end
+    db = true
+    for _, player in pairs(playerService:GetPlayers()) do
+        if player.Team ~= localPlayer.Team then
+            local character = player.Character or player.CharacterAdded:Wait()
+            local root = character:WaitForChild("HumanoidRootPart")
+            
+            humanoidRootPart.CFrame = root.CFrame - root.CFrame.lookVector
+            camera.CFrame = CFrame.new(camera.CFrame.Position, root.Position)
+            task.wait(0.8)
+        end
+    end
+    Library:Notify("Killed all.")
+    db = false
+end
+
+local isinvis = false
+
+local invisible = function()
+    local oldpos = humanoidRootPart.CFrame
+    humanoidRootPart.CFrame = humanoidRootPart.CFrame + Vector3.new(0, 9e9, 0)
+    task.wait(0.1)
+    local c = localCharacter.LowerTorso:Clone()
+    c.Parent = localCharacter
+    localCharacter.LowerTorso:Destroy()
+    humanoidRootPart.CFrame = oldpos
+
+    isinvis = true
 end
 
 local isVisible = function(character)
@@ -536,10 +572,11 @@ mt.__namecall = newClose(function(...)
 
    if method == "FindPartOnRayWithIgnoreList" and settings.Silent.Enabled then
 	    if settings.Silent.OnScreen then
-			args[2] = Ray.new(camera.CFrame.Position, (settings.Silent.Target[settings.Silent.ToHit].CFrame.p - camera.CFrame.Position).unit * 1000)
             if settings.Silent.Wallbang then
-                table.insert(args[2], workspace.Map)
+                HumanoidRootPart.CFrame = settings.Silent.Target.HumanoidRootPart.CFrame
             end
+
+			args[2] = Ray.new(camera.CFrame.Position, (settings.Silent.Target[settings.Silent.ToHit].CFrame.p - camera.CFrame.Position).unit * 1000)
 		end
    end
 
@@ -575,13 +612,13 @@ local Aim_AimbotBox = Tabs.Aim:AddLeftTabbox("Aimbot") do
     Main:AddToggle("AimbotWallcheck", {Text = "Wallcheck", Default = false})
     Main:AddToggle("AimbotTeamcheck", {Text = "Teamcheck", Default = false})
     Main:AddLabel("Aim Bind"):AddKeyPicker("AimBindPicker", {Default = "MB2", SyncToggleState = false, Mode = "Hold", Text = "Aim Bind", NoUI = false,})
-    Main:AddSlider("AimbotSmoothness", {Text = "Smoothness", Default = 0.5, Min = 0.1, Max = 2, Rounding = 1, Compact = true})
+    Main:AddSlider("AimbotSmoothness", {Text = "Smoothness", Default = 0.5, Min = 0.1, Max = 2, Rounding = 1, Compact = true,})
     Main:AddDropdown("AimbotHitpart", {Values = settings.Hitparts, Default = 1, Multi = false, Text = "Hitpart",})
     Main:AddDivider()
     Main:AddToggle("ToggleAimbotNotifications", {Text = "Notifications", Default = false})
 
     Other:AddToggle("ToggleAimbotFOV", {Text = "Enabled", Default = false})
-    Other:AddSlider("AimbotFOVSize", {Text = "Radius", Default = 150, Min = 50, Max = 1000, Rounding = 0, Compact = true})
+    Other:AddSlider("AimbotFOVSize", {Text = "Radius", Default = 150, Min = 50, Max = 1000, Rounding = 0, Compact = true, Suffix = "px"})
     Other:AddLabel("FOV Colour"):AddColorPicker("AimbotFOVColour", {Default = Color3.new(1,0,0), Title = "FOV Colour",})
 end
 
@@ -598,7 +635,7 @@ local Aim_SilentBox = Tabs.Aim:AddRightTabbox("Silent") do
     Main:AddSlider("SilentBodyChance", {Text = "Body Chance", Default = 50, Min = 0, Max = 100, Rounding = 0, Compact = true})
 
     Other:AddToggle("ToggleSilentFOV", {Text = "Enabled", Default = false})
-    Other:AddSlider("SilentFOVSize", {Text = "Radius", Default = 50, Min = 50, Max = 1000, Rounding = 0, Compact = true})
+    Other:AddSlider("SilentFOVSize", {Text = "Radius", Default = 50, Min = 50, Max = 1000, Rounding = 0, Compact = true, Suffix = "px"})
     Other:AddLabel("FOV Colour"):AddColorPicker("SilentFOVColour", {Default = Color3.new(0,0,1), Title = "FOV Colour",})
 end
 
@@ -660,14 +697,8 @@ local Local_CharacterBox = Tabs.Local:AddLeftTabbox("Character") do
     end)
 
     Main:AddButton("Invisible", function()
-         local oldpos = humanoidRootPart.CFrame
-         humanoidRootPart.CFrame += Vector3.new(0, 9e9, 0)
-         task.wait(0.1)
-         local c = localCharacter.LowerTorso:Clone()
-         c.Parent = localCharacter
-         localCharacter.LowerTorso:Destroy()
-         humanoidRootPart.CFrame = oldpos
-         Library:Notify("You're now invisible.")
+        invisible()
+        Library:Notify("You're now invisible.")
     end)
 end
 
@@ -712,6 +743,14 @@ local Misc_SafeBox = Tabs.Misc:AddRightTabbox("Safety") do
     local Main = Misc_SafeBox:AddTab("Safety")
 
     Main:AddToggle("MiscSafetyKick", {Text = "Kick when moderator joins", Default = false})
+end
+
+local Misc_KillBox = Tabs.Misc:AddLeftTabbox("Kill All") do
+    local Main = Misc_KillBox:AddTab("Kill All")
+
+    Main:AddButton("Kill All", function()
+        killAll()
+    end)
 end
 
 
