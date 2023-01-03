@@ -4,7 +4,7 @@ repeat task.wait()
 
 until game:IsLoaded()
 
-if game.PlaceVersion > 10460 then
+if game.PlaceVersion > 10477 then
     local Loaded,PromptLib = false,loadstring(game:HttpGet("https://raw.githubusercontent.com/AlexR32/Roblox/main/Useful/PromptLibrary.lua"))()
     PromptLib("Unsupported game version","You are at risk of getting autoban\nAre you sure you want to load Luaware?",{
         {Text = "Yes",LayoutOrder = 0,Primary = false,Callback = function() Loaded = true end},
